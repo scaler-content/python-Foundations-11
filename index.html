@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class 11 Post-Read · Regex</title>
+    <style>
+        :root {
+            --stock: #E7E0CC;
+            --stock-face: #FBF8EF;
+            --ink: #2B2620;
+            --ink-soft: #5B5347;
+            --tab-red: #A8382E;
+            --tab-teal: #3E6E62;
+            --tab-mustard: #B8842A;
+            --line: #D8CFB4;
+            --good: #3E6E62;
+            --bad: #A8382E;
+            --shadow: 3px 4px 0 rgba(43, 38, 32, .14);
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html {
+            scroll-behavior: smooth
+        }
+
+        body {
+            margin: 0;
+            background: var(--stock);
+            background-image: radial-gradient(rgba(43, 38, 32, .03) 1px, transparent 1px);
+            background-size: 14px 14px;
+            color: var(--ink);
+            font-family: Arial, sans-serif;
+            line-height: 1.55;
+            padding: 0 0 80px
+        }
+
+        code,
+        .mono,
+        pre {
+            font-family: "Courier New", monospace
+        }
+
+        h1,
+        h2,
+        h3,
+        .tab-label {
+            font-family: Georgia, serif;
+            font-weight: 400
+        }
+
+        .wrap {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 0 20px
+        }
+
+        header.masthead {
+            padding: 52px 20px 28px;
+            max-width: 720px;
+            margin: 0 auto
+        }
+
+        .kicker {
+            font-family: "Courier New", monospace;
+            font-size: .78rem;
+            color: var(--ink-soft);
+            margin: 0 0 10px
+        }
+
+        h1 {
+            font-size: 2.1rem;
+            margin: 0 0 6px;
+            line-height: 1.25
+        }
+
+        .sub {
+            color: var(--ink-soft);
+            font-size: 1.02rem;
+            max-width: 56ch;
+            margin: 0
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 18px;
+            margin: 22px 0 0;
+            padding: 14px 16px;
+            background: var(--stock-face);
+            border: 1px solid var(--line);
+            font-size: .86rem;
+            color: var(--ink-soft)
+        }
+
+        .scope {
+            margin: 34px auto 46px;
+            max-width: 720px;
+            padding: 20px 20px 20px 22px;
+            background: var(--stock-face);
+            border-left: 5px solid var(--tab-red);
+            box-shadow: var(--shadow)
+        }
+
+        .scope h2 {
+            font-size: 1rem;
+            margin: 0 0 8px;
+            color: var(--tab-red)
+        }
+
+        .scope p {
+            margin: 0
+        }
+
+        .card {
+            position: relative;
+            max-width: 720px;
+            margin: 0 auto 40px;
+            background: var(--stock-face);
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow)
+        }
+
+        .card-tab {
+            position: absolute;
+            top: -16px;
+            left: 24px;
+            padding: 5px 12px;
+            color: #fff;
+            font-size: .82rem;
+            font-family: "Courier New", monospace;
+            box-shadow: 2px 2px 0 rgba(43, 38, 32, .18)
+        }
+
+        .card-body {
+            padding: 34px 26px 26px
+        }
+
+        .card h3 {
+            font-size: 1.28rem;
+            margin: 0 0 14px
+        }
+
+        .card p {
+            margin: 0 0 14px
+        }
+
+        .analogy,
+        .takeaway,
+        .note {
+            padding: 14px 16px;
+            margin: 16px 0;
+            font-size: .95rem
+        }
+
+        .analogy {
+            background: #F2ECD8;
+            border: 1px dashed var(--tab-mustard)
+        }
+
+        .analogy .label,
+        .takeaway .label,
+        .note .label {
+            font-weight: 600;
+            font-size: .8rem;
+            font-family: "Courier New", monospace;
+            margin-bottom: 4px;
+            display: block
+        }
+
+        .analogy .label {
+            color: var(--tab-mustard)
+        }
+
+        .takeaway {
+            background: #EAF1EE;
+            border-left: 4px solid var(--tab-teal)
+        }
+
+        .takeaway .label {
+            color: var(--tab-teal)
+        }
+
+        .note {
+            background: #F6E9E7;
+            border-left: 4px solid var(--tab-red)
+        }
+
+        .note .label {
+            color: var(--tab-red)
+        }
+
+        pre {
+            background: #26221D;
+            color: #EDE6D2;
+            padding: 14px 16px;
+            overflow-x: auto;
+            font-size: .88rem;
+            margin: 14px 0;
+            line-height: 1.5
+        }
+
+        pre .out {
+            color: #8FBBA9
+        }
+
+        details.predict {
+            margin: 16px 0;
+            border: 1px solid var(--line);
+            background: #fff
+        }
+
+        details.predict summary {
+            cursor: pointer;
+            padding: 12px 14px;
+            font-family: "Courier New", monospace;
+            font-size: .88rem;
+            color: var(--tab-teal);
+            list-style: none
+        }
+
+        details.predict summary::-webkit-details-marker {
+            display: none
+        }
+
+        details.predict summary:before {
+            content: "▸";
+            margin-right: 8px
+        }
+
+        details.predict[open] summary:before {
+            content: "▾"
+        }
+
+        details.predict .reveal {
+            padding: 0 14px 16px;
+            border-top: 1px solid var(--line);
+            padding-top: 12px
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: .92rem
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 9px 10px;
+            border-bottom: 1px solid var(--line);
+            vertical-align: top
+        }
+
+        th {
+            font-family: "Courier New", monospace;
+            font-size: .78rem;
+            color: var(--ink-soft);
+            font-weight: 600;
+            border-bottom: 2px solid var(--ink)
+        }
+
+        .vote-box {
+            border: 1px solid var(--line);
+            background: #fff;
+            padding: 16px;
+            margin: 16px 0
+        }
+
+        .vote-btns,
+        .choice-btns {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+            flex-wrap: wrap
+        }
+
+        .vote-btns button,
+        .choice-btns button {
+            flex: 1;
+            min-width: 100px;
+            font-family: "Courier New", monospace;
+            padding: 10px;
+            background: var(--stock);
+            border: 1px solid var(--ink);
+            cursor: pointer
+        }
+
+        .vote-btns button:hover,
+        .choice-btns button:hover {
+            background: var(--ink);
+            color: var(--stock-face)
+        }
+
+        .vote-tally {
+            font-size: .82rem;
+            color: var(--ink-soft);
+            font-family: "Courier New", monospace
+        }
+
+        .vote-result {
+            display: none;
+            margin-top: 12px
+        }
+
+        .vote-result.show {
+            display: block
+        }
+
+        .terms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 8px
+        }
+
+        .flip {
+            perspective: 800px;
+            height: 110px;
+            cursor: pointer
+        }
+
+        .flip-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform .5s;
+            transform-style: preserve-3d
+        }
+
+        .flip.flipped .flip-inner {
+            transform: rotateY(180deg)
+        }
+
+        .flip-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border: 1px solid var(--ink);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 10px;
+            font-size: .85rem
+        }
+
+        .flip-front {
+            background: var(--stock-face);
+            font-family: "Courier New", monospace;
+            font-weight: 600
+        }
+
+        .flip-back {
+            background: var(--ink);
+            color: var(--stock-face);
+            transform: rotateY(180deg);
+            font-size: .76rem;
+            line-height: 1.4
+        }
+
+        .feedback {
+            display: none;
+            margin-top: 10px;
+            padding: 9px 11px
+        }
+
+        .feedback.show {
+            display: block
+        }
+
+        .feedback.correct {
+            background: #EAF1EE;
+            color: var(--good);
+            border-left: 3px solid var(--good)
+        }
+
+        .feedback.wrong {
+            background: #F6E9E7;
+            color: var(--bad);
+            border-left: 3px solid var(--bad)
+        }
+
+        .trace {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        .trace td {
+            padding: 7px 9px
+        }
+
+        .trace td:last-child {
+            text-align: right;
+            font-family: "Courier New", monospace;
+            font-weight: 600
+        }
+
+        .mental {
+            background: #26221D;
+            color: #EDE6D2;
+            padding: 16px;
+            font-family: "Courier New", monospace;
+            font-size: .82rem;
+            line-height: 1.5;
+            white-space: pre;
+            overflow-x: auto;
+            margin: 16px 0;
+            text-align: center
+        }
+
+        footer {
+            text-align: center;
+            max-width: 720px;
+            margin: 20px auto;
+            color: var(--ink-soft);
+            font-size: .84rem
+        }
+
+        @media(max-width:600px) {
+            h1 {
+                font-size: 1.6rem
+            }
+
+            .card-body {
+                padding: 30px 18px 20px
+            }
+
+            .vote-btns button {
+                min-width: 0
+            }
+
+            .mental {
+                font-size: .72rem
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="masthead">
+        <p class="kicker">DSML · Post-Read · Class 11</p>
+        <h1>Regex</h1>
+        <p class="sub">A card-by-card walkthrough to lock in <code>re.search()</code> vs. <code>re.match()</code>,
+            metacharacters, character classes, quantifiers, <code>findall()</code>, and capturing groups.</p>
+        <div class="legend">
+            <span>🔮 predict before revealing</span><span>💬 debrief</span><span>🤖 AI moment</span><span>✅
+                takeaway</span>
+        </div>
+    </header>
+
+    <div class="scope">
+        <h2>What this post-read covers</h2>
+        <p>Why pattern matching needs its own mini-language; <code>re.search()</code> and <code>re.match()</code>;
+            metacharacters; character classes and shorthands (<code>\d</code>, <code>\w</code>, <code>\s</code>);
+            quantifiers; <code>re.findall()</code>; capturing groups; and a cumulative log-parsing mini project.</p>
+    </div>
+
+    <div class="wrap">
+
+        <div class="card">
+            <div class="card-tab" style="background:var(--tab-red)">01 · the idea</div>
+            <div class="card-body">
+                <h3>Plain string methods run out of road fast</h3>
+                <p>Suppose we're reading a support inbox and want to pull out every message that contains a phone
+                    number. With plain string methods, the best we can do is check for a dash:</p>
+                <pre>message = "Call me at 555-1234 or email support@example.com"
+
+has_dash = "-" in message
+print(has_dash)</pre>
+                <details class="predict">
+                    <summary>🔮 Before you reveal: this only tells us there's a dash somewhere. What starts to go wrong
+                        if we try to check for a phone number, an email, and a date, all with plain string methods like
+                        this?</summary>
+                    <div class="reveal">
+                        <p>There's no way to say "three digits, then a dash, then four digits." No way to handle phone
+                            numbers written slightly differently. No reusable way to describe a <em>shape</em> rather
+                            than exact text. What we really want is a way to describe the shape of what we're looking
+                            for — "some digits, then a dash, then some more digits" — instead of one exact piece of
+                            text. That's exactly what a <strong>regular expression</strong>, or regex, gives us.</p>
+                    </div>
+                </details>
+                <div class="takeaway"><span class="label">✅ Takeaway</span>Regex lets you describe the shape of text
+                    you're looking for, instead of matching one exact string at a time.</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-tab" style="background:var(--tab-teal)">02 · what is a regex</div>
+            <div class="card-body">
+                <h3>A small language of its own</h3>
+                <p>A regular expression is a small, separate language for describing patterns in text. It's not Python
+                    syntax — it's a pattern string that Python's <code>re</code> module reads and applies for us. Every
+                    regex program starts the same way:</p>
+                <pre>import re</pre>
+                <table>
+                    <tr>
+                        <th>Term</th>
+                        <th>Meaning</th>
+                    </tr>
+                    <tr>
+                        <td>Pattern</td>
+                        <td>The regex string describing what to look for.</td>
+                    </tr>
+                    <tr>
+                        <td>Literal</td>
+                        <td>A character in the pattern that just matches itself (like <code>c</code> matching
+                            <code>c</code>).</td>
+                    </tr>
+                    <tr>
+                        <td>Metacharacter</td>
+                        <td>A character with special meaning (like <code>.</code> or <code>*</code>).</td>
+                    </tr>
+                    <tr>
+                        <td>Match object</td>
+                        <td>What <code>re</code> returns when it finds a hit.</td>
+                    </tr>
+                </table>
+                <div class="note"><span class="label">📌 Note</span>Always write patterns as raw strings, with an
+                    <code>r</code> in front — <code>r"..."</code> — so backslashes in the pattern aren't accidentally
+                    interpreted by Python itself before regex ever sees them.</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-tab" style="background:var(--tab-mustard)">03 · re.search()</div>
+            <div class="card-body">
+                <h3>Finding a pattern anywhere</h3>
+                <p><code>re.search()</code> looks through the whole string for the first place the pattern matches, no
+                    matter where it appears. If it finds one, it gives back a Match object. If not, it gives back
+                    <code>None</code>.</p>
+                <details class="predict">
+                    <summary>🔮 Predict: will this print something, or will it print None?</summary>
+                    <div class="reveal">
+                        <pre>text = "concatenate"
+result = re.search(r"cat", text)
+print(result)
+
+<span class="out">&lt;re.Match object; span=(3, 6), match='cat'&gt;</span></pre>
+                        <p><code>re.search()</code> found <code>'cat'</code> hiding inside <code>'concatenate'</code>,
+                            starting at index 3. The Match object tells you both that it matched and exactly where.</p>
+                    </div>
+                </details>
+                <div class="note"><span class="label">📌 Note</span>A common beginner mistake is treating the Match
+                    object like a boolean in unusual ways — it's truthy when a match is found and <code>None</code>
+                    (falsy) when it isn't, which is why <code>if re.search(...):</code> works cleanly as a check.</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-tab" style="background:var(--tab-red)">04 · re.match()</div>
+            <div class="card-body">
+                <h3>Anchored at the start</h3>
+                <p><code>re.match()</code> looks almost identical to <code>re.search()</code>, but with one important
+                    difference: it only checks the very beginning of the string. If the pattern doesn't show up right at
+                    the start, <code>match()</code> gives up immediately — even if the pattern exists later in the
+                    string.</p>
+                <details class="predict">
+                    <summary>🔮 Both lines search for the same pattern in the same string — will both find a match, or
+                        only one?</summary>
+                    <div class="reveal">
+                        <pre>text = "concatenate"
+
+print(re.match(r"cat", text))
+print(re.search(r"cat", text))
+
+<span class="out">None
+&lt;re.Match object; span=(3, 6), match='cat'&gt;</span></pre>
+                        <p><code>re.match()</code> failed because <code>'concatenate'</code> doesn't start with
+                            <code>'cat'</code> — it starts with <code>'con'</code>. <code>re.search()</code> succeeded
+                            because it's allowed to look anywhere in the string.</p>
+                    </div>
+                </details>
+                <div class="takeaway"><span class="label">✅ Takeaway</span>Use <code>match()</code> when the pattern
+                    must be at the very start (like validating a string begins with a country code), and
+                    <code>search()</code> when the pattern can be anywhere.</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-tab" style="background:var(--tab-teal)">05 · metacharacters</div>
+            <div class="card-body">
+                <h3>The building blocks</h3>
+                <p>A metacharacter is a character in a pattern that means something special, instead of matching itself
+                    literally:</p>
+                <table>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Meaning</th>
+                    </tr>
+                    <tr>
+                        <td><code>.</code></td>
+                        <td>Any single character (except a newline).</td>
+                    </tr>
+                    <tr>
+                        <td><code>^</code></td>
+                        <td>Start of the string.</td>
+                    </tr>
+                    <tr>
+                        <td><code>$</code></td>
+                        <td>End of the string.</td>
+                    </tr>
+                    <tr>
+                        <td><code>*</code></td>
+                        <td>Zero or more of the previous thing.</td>
+                    </tr>
+                    <tr>
+                        <td><code>+</code></td>
+                        <td>One or more of the previous thing.</td>
+                    </tr>
+                    <tr>
+                        <td><code>?</code></td>
+                        <td>Zero or one of the previous thing.</td>
+                    </tr>
+                    <tr>
+                        <td><code>{}</code></td>
+                        <td>An exact number, or range, of repeats.</td>
+                    </tr>
+                    <tr>
+                        <td><code>[]</code></td>
+                        <td>A character class — any one character from a set.</td>
+                    </tr>
+                    <tr>
+                        <td><code>\</code></td>
+                        <td>Escape the next character, or start a shorthand class.</td>
+                    </tr>
+                    <tr>
+                        <td><code>|</code></td>
+                        <td>OR — match one pattern or another.</td>
+                    </tr>
+                    <tr>
+                        <td><code>()</code></td>
+                        <td>A capturing group.</td>
+                    </tr>
+                </table>
+                <details class="predict">
+                    <summary>🔮 Predict which of these words the pattern will match, if any</summary>
+                    <div class="reveal">
+                        <pre>pattern = r"c.t"
+
+for word in ["cat", "cot", "ct", "coat"]:
+    print(word, bool(re.search(pattern, word)))
+
+<span class="out">cat True
+cot True
+ct False
+coat False</span></pre>
+                        <p>The <code>.</code> matched any single character between <code>c</code> and <code>t</code> —
+                            so <code>'cat'</code> and <code>'cot'</code> both worked, since exactly one character sits
+                            in that middle spot. <code>'ct'</code> failed because there's nothing between <code>c</code>
+                            and <code>t</code> at all, and <code>'coat'</code> failed because <code>.</code> only stands
+                            for one character, not two.</p>
+                    </div>
+                </details>
+                <div class="note"><span class="label">📌 Note</span>If you actually want to match a literal dot — like
+                    in a filename <code>report.pdf</code> — you have to escape it: <code>r"\."</code>. An un-escaped
+                    <code>.</code> in a pattern almost never means what a beginner expects.</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-tab" style="background:var(--tab-mustard)">06 · character classes</div>
+            <div class="card-body">
+                <h3>Matching one character from a set</h3>
+                <p>A character class lets us say "match any one character from this specific set" using square brackets
+                    — and because some sets come up constantly, regex gives us shorthand for them too:</p>
+                <table>
+                    <tr>
+                        <th>Pattern</th>
+                        <th>Matches</th>
+                    </tr>
+                    <tr>
+                        <td><code>[abc]</code></td>
+                        <td>Any one of a, b, or c.</td>
+                    </tr>
+                    <tr>
+                        <td><code>[a-z]</code></td>
+                        <td>Any lowercase letter.</td>
+                    </tr>
+                    <tr>
+                        <td><code>[0-9]</code></td>
+                        <td>Any digit (same idea as <code>\d</code>).</td>
+                    </tr>
+                    <tr>
+                        <td><code>[^0-9]</code></td>
+                        <td>Anything that is NOT a digit (<code>^</code> inside <code>[]</code> means negation).</td>
+                    </tr>
+                    <tr>
+                        <td><code>\d</code></td>
+                        <td>Any digit — shorthand for <code>[0-9]</code>.</td>
+                    </tr>
+                    <tr>
+                        <td><code>\w</code></td>
+                        <td>Any word character — shorthand for <code>[a-zA-Z0-9_]</code>.</td>
+                    </tr>
+                    <tr>
+                        <td><code>\s</code></td>
+                        <td>Any whitespace — space, tab, newline.</td>
+                    </tr>
+                    <tr>
+                        <td><code>\D \W \S</code></td>
+                        <td>The negation of each of the above.</td>
+                    </tr>
+                </table>
+                <details class="predict">
+                    <summary>🔮 Predict True or False for each line</summary>
+                    <div class="reveal">
+                        <pre>print(bool(re.search(r"[aeiou]", "sky")))
+print(bool(re.search(r"\d", "Room 42")))
+print(bool(re.search(r"^\w+$", "hello world")))
+
+<span class="out">False
+True
+False</span></pre>
+                        <p><code>'sky'</code> has no vowels at all, so the first check correctly fails.
+                            <code>'Room 42'</code> contains a digit, so <code>\d</code> matches. The last one is the
+                            interesting one: <code>\w</code> does not include the space character, so
+                            <code>'hello world'</code> — which has a space in the middle — does not fully match
+                            <code>^\w+$</code> from start to end.</p>
+                    </div>
+                </details>
+                <div class="note"><span class="label">🤖 AI moment</span>If you're unsure why an underscore counts as a
+                    "word" character, ask an AI assistant: <em>"Why does \w in regex include the underscore character,
+                        but not a space or a hyphen? Give me a couple of real examples where that distinction
+                        matters."</em> Then independently verify: write a pattern using <code>\W</code> (capital) that
+                    matches only non-word characters, and confirm it matches spaces and punctuation but not letters,
+                    digits, or underscores.</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-tab" style="background:var(--tab-red)">07 · quantifiers — the vote</div>
+            <div class="card-body">
+                <h3>How many times can this repeat?</h3>
+                <p>A quantifier says how many times the thing right before it is allowed to repeat:</p>
+                <table>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Meaning</th>
+                    </tr>
+                    <tr>
+                        <td><code>*</code></td>
+                        <td>Zero or more.</td>
+                    </tr>
+                    <tr>
+                        <td><code>+</code></td>
+                        <td>One or more.</td>
+                    </tr>
+                    <tr>
+                        <td><code>?</code></td>
+                        <td>Zero or one (optional).</td>
+                    </tr>
+                    <tr>
+                        <td><code>{3}</code></td>
+                        <td>Exactly 3.</td>
+                    </tr>
+                    <tr>
+                        <td><code>{2,4}</code></td>
+                        <td>Between 2 and 4 (inclusive).</td>
+                    </tr>
+                    <tr>
+                        <td><code>{2,}</code></td>
+                        <td>2 or more, no upper limit.</td>
+                    </tr>
+                </table>
+                <div class="vote-box">
+                    <p><strong>Which of these phone numbers will match <code>\d{3}-\d{4}</code>?</strong></p>
+                    <pre>pattern = r"\d{3}-\d{4}"
+
+for number in ["555-1234", "55-1234", "555-12345", "5551234"]:
+    print(number, bool(re.fullmatch(pattern, number)))</pre>
+                    <div class="vote-btns"><button type="button" onclick="quantVote('only1')">Only
+                            555-1234</button><button type="button" onclick="quantVote('first2')">The first
+                            two</button><button type="button" onclick="quantVote('all')">All four</button></div>
+                    <p class="vote-tally" id="quantTally"></p>
+                    <div class="vote-result" id="quantResult">
+                        <pre><span class="out">555-1234 True
+55-1234 False
+555-12345 False
+5551234 False</span></pre>
+                        <p><code>{3}</code> and <code>{4}</code> demand an exact count — not "roughly," exactly.
+                            <code>'55-1234'</code> has only two digits before the dash, and <code>'555-12345'</code> has
+                            five digits after it, so both fail. <code>'5551234'</code> has no dash at all, so it fails
+                            too.</p>
+                    </div>
+                </div>
+                <div class="note"><span class="label">📌 Note</span><code>re.fullmatch()</code> is like
+                    <code>search()</code>, but it requires the <em>entire</em> string to match the pattern from end to
+                    end — useful whenever you're validating an entire piece of input, like a form field, rather than
+                    just checking if a pattern shows up somewhere inside it.</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-tab" style="background:var(--tab-teal)">08 · re.findall()</div>
+            <div class="card-body">
+                <h3>Getting every match, not just the first</h3>
+                <p><code>search()</code> and <code>match()</code> only ever give us the first match. But often we want
+                    every match in a string — every phone number in a document, every hashtag in a tweet. That's what
+                    <code>re.findall()</code> is for.</p>
+                <details class="predict">
+                    <summary>🔮 Predict what this prints before running it</summary>
+                    <div class="reveal">
+                        <pre>text = "Reach us at 555-1234 or 555-9876, but not after 5pm."
+numbers = re.findall(r"\d{3}-\d{4}", text)
+print(numbers)
+
+<span class="out">['555-1234', '555-9876']</span></pre>
+                        <p><code>findall()</code> scans the whole string and returns every non-overlapping match as a
+                            list. <code>'5pm'</code> didn't get pulled in, since it doesn't have the shape
+                            <code>\d{3}-\d{4}</code> at all.</p>
+                    </div>
+                </details>
+                <div class="note"><span class="label">📌 Note</span>If the pattern contains capturing groups,
+                    <code>findall()</code> changes behavior and returns the group contents instead of the whole match —
+                    see the next card.</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-tab" style="background:var(--tab-mustard)">09 · capturing groups</div>
+            <div class="card-body">
+                <h3>Pulling out just the piece you want</h3>
+                <p>Right now, when we match something, we only get the whole match back — the entire phone number, the
+                    entire email. But usually we want a specific piece of it. Parentheses in a pattern create a
+                    <strong>capturing group</strong>, which lets us pull out just that piece.</p>
+                <details class="predict">
+                    <summary>🔮 Predict: what will group(0), group(1), and group(2) each return?</summary>
+                    <div class="reveal">
+                        <pre>text = "Name: Rex, Age: 3"
+match = re.search(r"Name: (\w+), Age: (\d+)", text)
+
+print(match.group(0))
+print(match.group(1))
+print(match.group(2))
+
+<span class="out">Name: Rex, Age: 3
+Rex
+3</span></pre>
+                        <p><code>group(0)</code> (or just <code>group()</code>) always returns the entire match, exactly
+                            like without any groups at all. <code>group(1)</code> and <code>group(2)</code> return only
+                            what fell inside the first and second sets of parentheses, in order.</p>
+                    </div>
+                </details>
+                <div class="takeaway"><span class="label">✅ Takeaway</span>The pattern describes the whole shape of the
+                    text, but the groups tell Python exactly which pieces you actually want to keep.</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-tab" style="background:var(--tab-red)">10 · findall() with groups</div>
+            <div class="card-body">
+                <h3>A genuinely surprising behavior change</h3>
+                <details class="predict">
+                    <summary>🔮 findall() with groups behaves differently than findall() without them — predict what
+                        this returns</summary>
+                    <div class="reveal">
+                        <pre>text = "Name: Rex, Age: 3; Name: Fido, Age: 5"
+pairs = re.findall(r"Name: (\w+), Age: (\d+)", text)
+print(pairs)
+
+<span class="out">[('Rex', '3'), ('Fido', '5')]</span></pre>
+                        <p>When a pattern has groups, <code>findall()</code> no longer returns the whole matches — it
+                            returns a list of tuples, one tuple per match, holding just the captured groups in order.
+                            This is genuinely surprising the first time you see it, so it's worth testing directly
+                            rather than assuming.</p>
+                    </div>
+                </details>
+                <div class="note"><span class="label">🤖 AI moment</span>Ask an AI assistant: <em>"Show me how to
+                        rewrite the pattern r'Name: (\w+), Age: (\d+)' using named groups instead of numbered groups,
+                        and how I would read match.group('name') afterward."</em> It should show you the
+                    <code>(?P&lt;name&gt;...)</code> syntax and <code>match.groupdict()</code>. Then independently
+                    verify: rewrite the Name/Age pattern using <code>(?P&lt;name&gt;\w+)</code> and
+                    <code>(?P&lt;age&gt;\d+)</code>, and confirm <code>match.group('name')</code> and
+                    <code>match.group('age')</code> return the same values <code>group(1)</code> and
+                    <code>group(2)</code> did.</div>
+                <div class="takeaway"><span class="label">✅ Takeaway</span>Numbered groups work fine for a quick
+                    pattern, but named groups are usually worth the extra typing once a pattern has more than two or
+                    three groups.</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-tab" style="background:var(--tab-teal)">11 · mini project</div>
+            <div class="card-body">
+                <h3>Extracting data from log lines</h3>
+                <p>Combine every idea from this class into one small, realistic program: a list of raw server log lines,
+                    each with a timestamp, a log level, and a message — pulled apart with character classes,
+                    quantifiers, and capturing groups.</p>
+                <details class="predict">
+                    <summary>🔮 Predict all three lines of output — what timestamp, level, and message will print for
+                        each log line?</summary>
+                    <div class="reveal">
+                        <pre>import re
+
+logs = [
+    "2024-03-01 08:15:02 ERROR Failed to connect to database",
+    "2024-03-01 08:15:05 INFO Retry succeeded",
+    "2024-03-01 08:16:40 WARNING Disk usage above 90%",
+]
+
+pattern = r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) (\w+) (.+)"
+
+for line in logs:
+    match = re.match(pattern, line)
+    timestamp, level, message = match.groups()
+    print(f"[{level}] {timestamp} — {message}")
+
+<span class="out">[ERROR] 2024-03-01 08:15:02 — Failed to connect to database
+[INFO] 2024-03-01 08:15:05 — Retry succeeded
+[WARNING] 2024-03-01 08:16:40 — Disk usage above 90%</span></pre>
+                    </div>
+                </details>
+                <p>This program uses every core idea from this class: character classes and quantifiers to shape the
+                    timestamp (<code>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}</code>), <code>\w+</code> to grab the log level
+                    as one word, <code>.+</code> to grab the rest of the line as the message, and three capturing groups
+                    pulled apart at once with <code>match.groups()</code>.</p>
+                <div class="takeaway"><span class="label">✅ Takeaway</span><code>re.match()</code> was enough here, not
+                    <code>search()</code> — every log line genuinely starts with its timestamp, so anchoring at the
+                    start is exactly the right tool.</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-tab" style="background:var(--tab-mustard)">12 · final recap</div>
+            <div class="card-body">
+                <h3>The one idea to leave with</h3>
+                <div class="mental"> 
+PATTERN (the "shape")
+│
+┌──────────────┼──────────────┐
+↓              ↓              ↓
+metachars      classes      quantifiers
+ .^$         \d \w \s        + ? {}
+│              │              │
+└──────────────┴──────────────┘
+↓
+search() / match() / findall()
+↓
+capturing groups
+(pull out just what you need)
+                </div>
+                <p>A regex is a separate mini-language for describing the <em>shape</em> of text, not the exact text
+                    itself. <code>re.search()</code> finds a pattern anywhere in a string; <code>re.match()</code> only
+                    counts a match at the very start. Metacharacters like <code>. ^ $ * + ?</code> give individual
+                    characters special meaning, and character classes like <code>[a-z]</code> or shorthands like
+                    <code>\d</code>, <code>\w</code>, <code>\s</code> describe a whole set of characters at once.
+                    Quantifiers control how many times something repeats. <code>re.findall()</code> pulls out every
+                    match at once, and capturing groups let you extract specific pieces of a match — with
+                    <code>findall()</code> returning tuples of just the captured groups whenever a pattern has them.</p>
+                <div class="takeaway"><span class="label">✅ Takeaway</span>Predict what a pattern will match before
+                    running it — regex punishes assumptions faster than almost anything else in this course.</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-tab" style="background:var(--tab-red)">13 · quick revision</div>
+            <div class="card-body">
+                <h3>Key terms — tap to flip</h3>
+                <div class="terms-grid" id="termsGrid"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>Class 11 · Regex — post-read</footer>
+
+    <script>
+        const quantVotes = {a: 0, b: 0, c: 0};
+        function quantVote(choice) {
+            if (choice === 'only1') quantVotes.a++;
+            else if (choice === 'first2') quantVotes.b++;
+            else quantVotes.c++;
+            document.getElementById('quantTally').textContent = `Votes — only 555-1234: ${quantVotes.a}, first two: ${quantVotes.b}, all four: ${quantVotes.c}`;
+            document.getElementById('quantResult').classList.add('show');
+        }
+        const terms = [
+            ['regex / pattern', 'A string in regex\u2019s mini-language describing the shape of text to match.'],
+            ['re.search()', 'Finds the first match anywhere in a string; returns None if there isn\u2019t one.'],
+            ['re.match()', 'Like search(), but only checks the very start of the string.'],
+            ['re.fullmatch()', 'Requires the entire string to match the pattern, end to end.'],
+            ['metacharacter', 'A character with special meaning in a pattern, like . or *.'],
+            ['character class', '[] — matches any one character from a set, e.g. [a-z].'],
+            ['\\d \\w \\s', 'Shorthand classes for digit, word character, and whitespace.'],
+            ['quantifier', 'Controls how many times the previous piece repeats: * + ? {}.'],
+            ['re.findall()', 'Returns every match in a string as a list.'],
+            ['capturing group', '() in a pattern — pulls out just that piece of the match.'],
+            ['match.group()', 'Returns the whole match (0) or a specific captured group (1, 2, ...).']
+        ];
+        const grid = document.getElementById('termsGrid');
+        terms.forEach(([term, def]) => {
+            const el = document.createElement('div'); el.className = 'flip';
+            el.innerHTML = `<div class="flip-inner"><div class="flip-face flip-front">${term}</div><div class="flip-face flip-back">${def}</div></div>`;
+            el.addEventListener('click', () => el.classList.toggle('flipped'));
+            grid.appendChild(el);
+        });
+    </script>
+</body>
+
+</html>
